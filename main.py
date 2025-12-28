@@ -37,26 +37,26 @@ def update_display():
 def main():
     """Main entry point with scheduled updates"""
     logger.info("Starting InkyPi with hourly updates...")
-    
+
     try:
         # Run immediately on startup
         logger.info("Running initial update...")
         update_display()
-        
+
         # Schedule to run every hour
         schedule.every().hour.do(update_display)
         logger.info("Scheduled updates every hour")
-        
+
         # Keep running and check schedule
         logger.info("Entering main loop (press Ctrl+C to exit)...")
         while True:
             schedule.run_pending()
             time.sleep(60)  # Check every minute
-        
+
     except KeyboardInterrupt:
         logger.info("Application interrupted by user")
         sys.exit(0)
-        
+
     except Exception as e:
         logger.error(f"Application error: {e}", exc_info=True)
         sys.exit(1)
