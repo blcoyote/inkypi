@@ -141,10 +141,10 @@ class Layouts:
         # Top section (Title) - black text on white background
         # Use smaller font and multi-line if title is long
         if len(title) > 15:
-            title_font = self._get_font(14)
+            title_font = self._get_font(18)
             title_lines = self._split_text(title, max_length=15)
         else:
-            title_font = self._get_font(24)
+            title_font = self._get_font(28)
             title_lines = [title]
         
         # Calculate vertical spacing for title lines
@@ -160,7 +160,7 @@ class Layouts:
             draw.text((line_x, line_y), line, font=title_font, fill=1)
         
         # Bottom section (Date) - white text on black background
-        date_font = self._get_font(18)
+        date_font = self._get_font(22)
         date_bbox = (0, division_y, self.width, self.height)
         date_pos = self._center_text(draw, date, date_font, date_bbox)
         draw.text(date_pos, date, font=date_font, fill=0)
@@ -168,7 +168,7 @@ class Layouts:
         # Add tiny "Last updated" text at the bottom of date section
         update_datetime = datetime.now().strftime('%d/%m %H:%M')
         update_text = f"Updated: {update_datetime}"
-        update_font = self._get_font(8)  # Very small font
+        update_font = self._get_font(10)  # Very small font
         
         # Position at bottom right of the black section
         update_bbox = draw.textbbox((0, 0), update_text, font=update_font)
