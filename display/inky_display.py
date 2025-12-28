@@ -6,13 +6,35 @@ This module handles all InkyPHAT-specific hardware operations.
 
 import sys
 import os
+import platform
 from pathlib import Path
 
-# Add stubs directory for Windows development
-if not os.path.exists('/etc/rpi-issue'):
+
+def _is_raspberry_pi():
+    """Check if running on Raspberry Pi hardware"""
+    # Check multiple indicators for Raspberry Pi
+    if os.path.exists('/etc/rpi-issue'):
+        return True
+    if os.path.exists('/proc/device-tree/model'):
+        try:
+            with open('/proc/device-tree/model', 'r') as f:
+                if 'raspberry pi' in f.read().lower():
+                    return True
+        except Exception:
+            pass
+    # Check for ARM architecture (common on RPi)
+    machine = platform.machine().lower()
+    if machine in ['armv7l', 'aarch64', 'armv6l']:
+        return True
+    return False
+
+
+# Add stubs directory ONLY for non-Raspberry Pi development (Windows/Mac/Linux Desktop)
+if not _is_raspberry_pi():
     stubs_path = Path(__file__).parent.parent / 'stubs'
     if stubs_path.exists():
         sys.path.insert(0, str(stubs_path))
+        print(f"[DEV MODE] Using hardware stubs from: {stubs_path}")
 
 try:
     from inky.auto import auto

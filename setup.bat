@@ -73,6 +73,39 @@ if not exist stubs mkdir stubs
 python stubs\create_stubs.py
 echo.
 
+REM Clone inky library source for IDE support
+echo Installing inky library source for IDE support...
+if not exist temp_inky (
+    echo Cloning inky repository...
+    git clone --depth 1 https://github.com/pimoroni/inky.git temp_inky
+    if errorlevel 1 (
+        echo WARNING: Git clone failed. Skipping IDE support installation.
+        echo You can manually download from: https://github.com/pimoroni/inky/tree/main/inky
+        goto skip_inky
+    )
+    
+    REM Copy inky source to venv site-packages
+    if exist venv\Lib\site-packages (
+        echo Copying inky source to venv\Lib\site-packages...
+        xcopy /E /I /Y temp_inky\inky venv\Lib\site-packages\inky
+        if errorlevel 1 (
+            echo WARNING: Failed to copy inky source
+        ) else (
+            echo Inky source installed successfully for IDE support
+        )
+    )
+    
+    REM Cleanup
+    echo Cleaning up temporary files...
+    rmdir /s /q temp_inky
+    
+) else (
+    echo Inky repository already exists, skipping clone.
+)
+
+:skip_inky
+echo.
+
 echo.
 echo ========================================
 echo Setup Complete!
