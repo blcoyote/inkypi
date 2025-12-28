@@ -141,7 +141,7 @@ class Layouts:
         # Top section (Title) - black text on white background
         # Use smaller font and multi-line if title is long
         if len(title) > 15:
-            title_font = self._get_font(18)
+            title_font = self._get_font(22)
             title_lines = self._split_text(title, max_length=15)
         else:
             title_font = self._get_font(28)
