@@ -6,11 +6,11 @@ from .waste_repository import WasteRepository
 from .app import InkyPiApp
 
 __all__ = [
-    'ContentProvider',
-    'WasteSchedule',
-    'PlannedCollection', 
-    'Standplads',
-    'Address',
-    'WasteRepository',
-    'InkyPiApp'
+    "ContentProvider",
+    "WasteSchedule",
+    "PlannedCollection",
+    "Standplads",
+    "Address",
+    "WasteRepository",
+    "InkyPiApp",
 ]
