@@ -38,10 +38,14 @@ class Layouts:
         for path in font_paths:
             if os.path.exists(path):
                 try:
-                    return ImageFont.truetype(path, size)
-                except Exception:
+                    font = ImageFont.truetype(path, size)
+                    self._log_info(f"Loaded font: {path} at size {size}")
+                    return font
+                except Exception as e:
+                    self._log_info(f"Failed to load {path}: {e}")
                     continue
         
+        self._log_info(f"Using default font for size {size}")
         return ImageFont.load_default()
     
     def _center_text(self, draw, text, font, bbox):
@@ -141,14 +145,14 @@ class Layouts:
         # Top section (Title) - black text on white background
         # Use smaller font and multi-line if title is long
         if len(title) > 15:
-            title_font = self._get_font(22)
+            title_font = self._get_font(18)
             title_lines = self._split_text(title, max_length=15)
         else:
             title_font = self._get_font(28)
             title_lines = [title]
         
         # Calculate vertical spacing for title lines
-        line_height = 18  # Approximate line height for multi-line text
+        line_height = 22  # Line height for multi-line text (increased for larger fonts)
         total_height = len(title_lines) * line_height
         start_y = (division_y - total_height) // 2
         
