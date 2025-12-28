@@ -96,6 +96,8 @@ NUMMER=your_address_number_here
 ```
 inkypi/
 ├── main.py                 # Application entry point
+├── clear_screen.py         # Utility to clear the inkyphat display
+├── activate.sh             # Quick script to activate venv
 ├── display/                # Display hardware abstraction
 │   ├── __init__.py
 │   └── inky_display.py    # InkyPHAT interface
@@ -105,6 +107,7 @@ inkypi/
 │   └── layouts.py         # Display layout templates
 ├── core/                  # Business logic
 │   ├── __init__.py
+│   ├── app.py            # Application orchestration
 │   ├── content_provider.py  # Content formatting
 │   ├── models.py          # Data models
 │   └── waste_repository.py # API integration
@@ -115,11 +118,27 @@ inkypi/
 │   ├── logger.py         # Logging setup
 │   └── state.py          # State management
 ├── stubs/                # Mock hardware for development
-│   └── inky/             # InkyPHAT stubs
+│   ├── create_stubs.py   # Stub generator
+│   ├── gpiozero.py       # GPIO stubs
+│   ├── spidev.py         # SPI stubs
+│   ├── inky/             # InkyPHAT stubs
+│   └── RPi/              # Raspberry Pi stubs
+├── tests/                # Test suite
+│   ├── conftest.py       # Pytest fixtures
+│   ├── unit/             # Unit tests
+│   └── integration/      # Integration tests
+├── .github/              # GitHub configuration
+│   └── workflows/        # CI/CD workflows
+│       └── tests.yml     # Automated testing
+├── htmlcov/              # Code coverage reports
 ├── requirements.txt      # Production dependencies
 ├── requirements-dev.txt  # Development dependencies
+├── pytest.ini            # Pytest configuration
 ├── setup.sh             # Linux/Raspberry Pi setup
 ├── setup.bat            # Windows setup
+├── state.json           # Application state (runtime)
+├── README.md            # This file
+├── TESTING.md           # Testing guide
 └── .env                 # Configuration (not in git)
 ```
 
