@@ -85,7 +85,7 @@ Edit the `.env` file to configure:
 
 ```env
 # RenoSyd waste collection address number
-NUMMER=013165
+NUMMER=your_address_number_here
 
 # API base URL (optional, uses default if not set)
 # BASE_URL=https://skoda-selvbetjeningsapi.renosyd.dk
