@@ -128,14 +128,15 @@ class Layouts:
         self._log_info(f"Creating title_and_date layout: '{title}' / '{date}'")
         
         # Create white background (use 'P' mode for palette/InkyPHAT compatibility)
-        image = Image.new('P', (self.width, self.height), 255)
+        # InkyPHAT uses: 0=white, 1=black, 2=red
+        image = Image.new('P', (self.width, self.height), 0)
         draw = ImageDraw.Draw(image)
         
         # Calculate division line (horizontal center)
         division_y = self.height // 2
         
         # Fill bottom section with black
-        draw.rectangle([(0, division_y), (self.width, self.height)], fill=0)
+        draw.rectangle([(0, division_y), (self.width, self.height)], fill=1)
         
         # Top section (Title) - black text on white background
         # Use smaller font and multi-line if title is long
@@ -156,13 +157,13 @@ class Layouts:
             # Calculate centered position for this line
             line_x = (self.width - draw.textbbox((0, 0), line, font=title_font)[2]) // 2
             line_y = start_y + (i * line_height)
-            draw.text((line_x, line_y), line, font=title_font, fill=0)
+            draw.text((line_x, line_y), line, font=title_font, fill=1)
         
         # Bottom section (Date) - white text on black background
         date_font = self._get_font(18)
         date_bbox = (0, division_y, self.width, self.height)
         date_pos = self._center_text(draw, date, date_font, date_bbox)
-        draw.text(date_pos, date, font=date_font, fill=255)
+        draw.text(date_pos, date, font=date_font, fill=0)
         
         # Add tiny "Last updated" text at the bottom of date section
         update_datetime = datetime.now().strftime('%d/%m %H:%M')
@@ -175,7 +176,7 @@ class Layouts:
         update_x = self.width - update_width - 3  # 3px padding from right
         update_y = self.height - 12  # 12px from bottom
         
-        draw.text((update_x, update_y), update_text, font=update_font, fill=255)
+        draw.text((update_x, update_y), update_text, font=update_font, fill=0)
         
         self._log_info("Layout created successfully")
         return image
