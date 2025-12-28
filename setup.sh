@@ -24,7 +24,7 @@ echo ""
 if [[ -f /etc/rpi-issue ]]; then
     echo "Raspberry Pi detected. Installing system dependencies..."
     sudo apt-get update
-    sudo apt-get install -y python3-pip python3-pil python3-numpy python3-venv
+    sudo apt-get install -y python3-pip python3-pil python3-numpy python3-venv fonts-dejavu fonts-liberation
     
     # Enable SPI if not already enabled
     if ! grep -q "^dtparam=spi=on" /boot/config.txt; then

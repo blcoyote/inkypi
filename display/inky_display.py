@@ -69,8 +69,13 @@ class InkyDisplay:
             self.height = self._display.height
             self.color = getattr(self._display, 'colour', getattr(self._display, 'color', 'black'))
             
+            # Rotate display 180 degrees for cable positioning
+            self._display.h_flip = True
+            self._display.v_flip = True
+            
             self._log_info(f"Display initialized: {self.width}x{self.height} pixels")
             self._log_info(f"Display color mode: {self.color}")
+            self._log_info("Display rotated 180 degrees")
             
         except Exception as e:
             self._log_error(f"Failed to initialize display: {e}")
