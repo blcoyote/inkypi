@@ -2,4 +2,4 @@
 
 from .inky_display import InkyDisplay
 
-__all__ = ['InkyDisplay']
+__all__ = ["InkyDisplay"]

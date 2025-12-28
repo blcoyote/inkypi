@@ -30,18 +30,18 @@ def frozen_time():
 def sample_address_data():
     """Sample address data matching RenoSyd API structure"""
     return {
-        'navn': 'Test Location',
-        'vejnavn': 'Testvej',
-        'husnummer': '42',
-        'etage': None,
-        'sidedør': None,
-        'postdistrikt': 'TestBy',
-        'postnummer': '1234',
-        'kvhxcode': 'TEST123',
-        'kommunenummer': 123,
-        'vejkode': 456,
-        'breddegrad': 55.6761,
-        'laengdegrad': 12.5683
+        "navn": "Test Location",
+        "vejnavn": "Testvej",
+        "husnummer": "42",
+        "etage": None,
+        "sidedør": None,
+        "postdistrikt": "TestBy",
+        "postnummer": "1234",
+        "kvhxcode": "TEST123",
+        "kommunenummer": 123,
+        "vejkode": 456,
+        "breddegrad": 55.6761,
+        "laengdegrad": 12.5683,
     }
 
 
@@ -49,14 +49,14 @@ def sample_address_data():
 def sample_standplads_data(sample_address_data):
     """Sample collection point data"""
     return {
-        'nummer': '013165',
-        'navn': 'Test Standplads',
-        'beskrivelse': 'Test description',
-        'adresse': sample_address_data,
-        'længdegrad': 12.5683,
-        'breddegrad': 55.6761,
-        'sidstændret': '2025-01-01T10:00:00Z',
-        'beholder': 'container'
+        "nummer": "013165",
+        "navn": "Test Standplads",
+        "beskrivelse": "Test description",
+        "adresse": sample_address_data,
+        "længdegrad": 12.5683,
+        "breddegrad": 55.6761,
+        "sidstændret": "2025-01-01T10:00:00Z",
+        "beholder": "container",
     }
 
 
@@ -65,8 +65,8 @@ def sample_planned_collection_data():
     """Sample planned collection data with dynamic future date"""
     future_date = datetime.now(timezone.utc) + timedelta(days=30)
     return {
-        'dato': future_date.isoformat().replace('+00:00', 'Z'),
-        'fraktioner': ['Restaffald', 'Papir']
+        "dato": future_date.isoformat().replace("+00:00", "Z"),
+        "fraktioner": ["Restaffald", "Papir"],
     }
 
 
@@ -74,22 +74,25 @@ def sample_planned_collection_data():
 def sample_api_response(sample_standplads_data, sample_planned_collection_data):
     """Sample API response matching RenoSyd structure with dynamic dates"""
     future_date_2 = datetime.now(timezone.utc) + timedelta(days=60)
-    return [{
-        'standplads': sample_standplads_data,
-        'planlagtetømninger': [
-            sample_planned_collection_data,
-            {
-                'dato': future_date_2.isoformat().replace('+00:00', 'Z'),
-                'fraktioner': ['Glas', 'Metal']
-            }
-        ]
-    }]
+    return [
+        {
+            "standplads": sample_standplads_data,
+            "planlagtetømninger": [
+                sample_planned_collection_data,
+                {
+                    "dato": future_date_2.isoformat().replace("+00:00", "Z"),
+                    "fraktioner": ["Glas", "Metal"],
+                },
+            ],
+        }
+    ]
 
 
 @pytest.fixture
 def sample_waste_schedule(sample_api_response):
     """Parsed WasteSchedule object"""
     from core.models import WasteSchedule
+
     return WasteSchedule.from_dict(sample_api_response[0])
 
 
@@ -130,7 +133,7 @@ def mock_requests_session():
 def mock_pil_image():
     """Mock PIL Image for rendering tests"""
     image = Mock()
-    image.mode = 'P'
+    image.mode = "P"
     image.size = (250, 122)
     return image
 
