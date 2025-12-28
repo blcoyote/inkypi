@@ -20,7 +20,7 @@ class InkyPHAT:
         self.color = color
         self.width = self.WIDTH
         self.height = self.HEIGHT
-        self.border_color = self.WHITE
+        self.border_color = self.BLACK
         self.h_flip = False
         self.v_flip = False
         print(f"[STUB] InkyPHAT initialized (color={color})")
