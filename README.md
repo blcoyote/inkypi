@@ -173,10 +173,27 @@ venv\Scripts\activate
 
 ### Running Tests
 
+The project includes a comprehensive test suite with 83 tests and 67% code coverage.
+
 ```bash
-# Test API connection
-python test_waste_repository.py
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov
+
+# Run specific test file
+pytest tests/unit/test_models.py
+
+# Generate HTML coverage report
+pytest --cov --cov-report=html
+# Open htmlcov/index.html
 ```
+
+For detailed testing information, see:
+- [TESTING.md](TESTING.md) - Quick reference guide
+- [TEST_PLAN.md](TEST_PLAN.md) - Comprehensive test strategy
+- [TEST_SUMMARY.md](TEST_SUMMARY.md) - Implementation summary
 
 ### Code Style
 
@@ -185,6 +202,7 @@ The project uses standard Python conventions:
 - Type hints where applicable
 - Comprehensive docstrings
 - Separation of concerns
+- Test-driven development practices
 
 ## Troubleshooting
 

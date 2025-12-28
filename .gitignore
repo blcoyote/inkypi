@@ -5,3 +5,11 @@ venv/
 inky_preview.png
 .env
 state.json
+
+# Test outputs
+.pytest_cache/
+htmlcov/
+.coverage
+*.cover
+.hypothesis/
+*.log

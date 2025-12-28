@@ -341,8 +341,4 @@ tail -f /var/log/inkypi.log
 
 ## License
 
-Add your license information here.
-
-## Contributors
-
-Add contributor information here.
+MIT License
