@@ -1,0 +1,37 @@
+# InkyPi - Python Dependencies
+
+# InkyPHAT Display Library
+inky[rpi,example-depends]==1.5.0
+
+# Image Processing
+Pillow>=10.0.0
+
+# GPIO and Hardware (Raspberry Pi specific)
+RPi.GPIO>=0.7.1; platform_machine=="armv7l" or platform_machine=="aarch64"
+spidev>=3.6; platform_machine=="armv7l" or platform_machine=="aarch64"
+gpiozero>=2.0.1; platform_machine=="armv7l" or platform_machine=="aarch64"
+
+# Data Processing
+numpy>=1.24.0
+
+# HTTP Requests (for API integrations)
+requests>=2.31.0
+
+# Configuration Management
+python-dotenv>=1.0.0
+
+# Logging
+colorlog>=6.7.0
+
+# Scheduling (optional - for periodic updates)
+schedule>=1.2.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.0
+
+# Code Quality (development)
+black>=23.7.0
+flake8>=6.1.0
+pylint>=2.17.0
