@@ -32,11 +32,18 @@ class InkyPHAT:
     
     def set_image(self, image):
         """Set image to display"""
-        print(f"[STUB] InkyPHAT.set_image({image.size})")
+        print(f"[STUB] InkyPHAT.set_image(mode={image.mode}, size={image.size})")
         # Save to file for preview
         try:
-            image.save("inky_preview.png")
+            # Convert to RGB for preview display
+            if image.mode in ['P', 'L', '1']:
+                preview_image = image.convert('RGB')
+            else:
+                preview_image = image
+            
+            preview_image.save("inky_preview.png")
             print("[STUB] Saved preview to inky_preview.png")
+            print(f"[STUB] Preview stats - min: {image.getextrema()[0]}, max: {image.getextrema()[1]}")
         except Exception as e:
             print(f"[STUB] Could not save preview: {e}")
     

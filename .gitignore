@@ -1,5 +1,7 @@
 __pycache__/
 *.pyc
 .DS_Store
-/venv/
+venv/
 inky_preview.png
+.env
+state.json
