@@ -74,7 +74,7 @@ class InkyPiApp:
         image = self.layouts.title_and_date(title, date)
         
         # Display on InkyPHAT
-        self.display.set_border(InkyDisplay.BLACK)
+        self.display.set_border(InkyDisplay.WHITE)
         self.display.show(image)
         
         logger.info("Title and date displayed successfully")
