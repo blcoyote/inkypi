@@ -127,8 +127,8 @@ class Layouts:
         """
         self._log_info(f"Creating title_and_date layout: '{title}' / '{date}'")
         
-        # Create white background (use 'L' mode for proper grayscale)
-        image = Image.new('L', (self.width, self.height), 255)
+        # Create white background (use 'P' mode for palette/InkyPHAT compatibility)
+        image = Image.new('P', (self.width, self.height), 255)
         draw = ImageDraw.Draw(image)
         
         # Calculate division line (horizontal center)

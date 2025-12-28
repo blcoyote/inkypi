@@ -11,17 +11,11 @@ RPi.GPIO>=0.7.1; platform_machine=="armv7l" or platform_machine=="aarch64"
 spidev>=3.6; platform_machine=="armv7l" or platform_machine=="aarch64"
 gpiozero>=2.0.1; platform_machine=="armv7l" or platform_machine=="aarch64"
 
-# Data Processing
-numpy>=1.24.0
-
 # HTTP Requests (for API integrations)
 requests>=2.31.0
 
 # Configuration Management
 python-dotenv>=1.0.0
-
-# Logging
-colorlog>=6.7.0
 
 # Scheduling (optional - for periodic updates)
 schedule>=1.2.0

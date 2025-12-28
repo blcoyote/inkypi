@@ -35,8 +35,13 @@ class InkyPHAT:
         print(f"[STUB] InkyPHAT.set_image(mode={image.mode}, size={image.size})")
         # Save to file for preview
         try:
-            # Convert to RGB for preview display
-            if image.mode in ['P', 'L', '1']:
+            # For palette mode, set a proper grayscale palette before conversion
+            if image.mode == 'P':
+                # Create a simple grayscale palette (0-255)
+                palette = list(range(256)) * 3  # R, G, B all the same for grayscale
+                image.putpalette(palette)
+                preview_image = image.convert('RGB')
+            elif image.mode in ['L', '1']:
                 preview_image = image.convert('RGB')
             else:
                 preview_image = image
