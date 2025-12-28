@@ -139,8 +139,8 @@ class Layouts:
         # Calculate division line (horizontal center)
         division_y = self.height // 2
         
-        # Fill bottom section with black
-        draw.rectangle([(0, division_y), (self.width, self.height)], fill=1)
+        # Fill bottom section with black (subtract 1 from width/height for inclusive coordinates)
+        draw.rectangle([(0, division_y), (self.width - 1, self.height - 1)], fill=1)
         
         # Top section (Title) - black text on white background
         # Use smaller font and multi-line if title is long
