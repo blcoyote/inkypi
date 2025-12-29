@@ -111,7 +111,6 @@ inkypi/
 │   └── inky_display.py    # InkyPHAT interface
 ├── rendering/             # Layout and image composition
 │   ├── __init__.py
-│   ├── renderer.py        # Image rendering utilities
 │   └── layouts.py         # Display layout templates
 ├── core/                  # Business logic
 │   ├── __init__.py
@@ -141,6 +140,8 @@ inkypi/
 ├── htmlcov/              # Code coverage reports
 ├── requirements.txt      # Production dependencies
 ├── requirements-dev.txt  # Development dependencies
+├── pyproject.toml        # Python tooling configuration (black, pylint, pytest)
+├── .flake8              # Flake8 linting configuration
 ├── pytest.ini            # Pytest configuration
 ├── setup.sh             # Linux/Raspberry Pi setup
 ├── setup.bat            # Windows setup
