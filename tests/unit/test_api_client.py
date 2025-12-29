@@ -4,9 +4,11 @@ Unit Tests for APIClient
 Tests for HTTP client wrapper utility.
 """
 
-import pytest
 from unittest.mock import Mock, patch
+
+import pytest
 import requests
+
 from utils.api_client import APIClient
 
 
@@ -184,14 +186,6 @@ class TestAPIClient:
         client.set_auth("user", "pass")
 
         assert client.session.auth == ("user", "pass")
-
-    def test_set_bearer_token_sets_authorization_header(self, mock_logger):
-        """Test that set_bearer_token sets Authorization header"""
-        client = APIClient(logger=mock_logger)
-
-        client.set_bearer_token("token123")
-
-        assert client.session.headers["Authorization"] == "Bearer token123"
 
     def test_build_url_with_base_url(self, mock_logger):
         """Test that _build_url constructs full URL"""

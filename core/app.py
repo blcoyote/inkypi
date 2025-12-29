@@ -48,12 +48,6 @@ class InkyPiApp:
 
         self._log_info("All layers initialized successfully")
 
-    def clear_to_white(self):
-        """Clear the display to white"""
-        self._log_info("Clearing display to white...")
-        self.display.clear(color=InkyDisplay.WHITE)
-        self._log_info("Display cleared to white successfully")
-
     def show_title_and_date(self, title, date):
         """
         Display a two-section layout with title and date
@@ -116,52 +110,17 @@ class InkyPiApp:
                 "fractions": next_collection.fraktioner,  # Store full list for comparison
             }
 
-            # Check if data changed (for logging)
+            # Check if data changed and determine if update needed
             has_changed = self.state.has_changed(STATE_LAST_DISPLAY, current_state)
+            should_update, reason = self._should_update_display(has_changed, force_update)
 
-            # Check when display was last updated
-            last_update_time_str = self.state.get(STATE_LAST_UPDATE_TIME)
-            should_update = has_changed or force_update  # Always update if forced or data changed
-
-            if last_update_time_str and not should_update:
-                try:
-                    last_update_time = datetime.fromisoformat(last_update_time_str)
-                    hours_since_update = (datetime.now() - last_update_time).total_seconds() / 3600
-                    if hours_since_update >= UPDATE_INTERVAL_HOURS:
-                        should_update = True
-                        self._log_info(
-                            f"24 hours elapsed since last update ({hours_since_update:.1f}h)"
-                        )
-                except (ValueError, TypeError):
-                    # Invalid timestamp, treat as first run
-                    should_update = True
-            elif not last_update_time_str and not should_update:
-                # No previous update time, must be first run
-                should_update = True
-                self._log_info("First run detected - updating display")
-
-            # Update display only if needed
             if should_update:
-                if force_update:
-                    self._log_info(
-                        f"Startup update - updating display: {waste_types} on {collection_date}"
-                    )
-                elif has_changed:
-                    self._log_info(
-                        f"Data changed - updating display: {waste_types} on {collection_date}"
-                    )
-                else:
-                    self._log_info(
-                        f"Scheduled 24h refresh - updating display: "
-                        f"{waste_types} on {collection_date}"
-                    )
+                self._log_info(f"{reason} - updating display: {waste_types} on {collection_date}")
                 self.show_title_and_date(waste_types, collection_date)
-                self.state.set(STATE_LAST_DISPLAY, current_state)
-                self.state.set(STATE_LAST_UPDATE_TIME, datetime.now().isoformat())
+                self._update_state(current_state)
             else:
                 self._log_info(
-                    f"Data unchanged and within 24h window - skipping display update: "
-                    f"{waste_types} on {collection_date}"
+                    f"{reason} - skipping display update: {waste_types} on {collection_date}"
                 )
 
         except Exception as e:
@@ -201,6 +160,48 @@ class InkyPiApp:
         self.close()
         return False
 
+    def _should_update_display(
+        self, has_changed: bool, force_update: bool = False
+    ) -> tuple[bool, str]:
+        """Determine if display should update and return reason.
+
+        Args:
+            has_changed: Whether the data has changed
+            force_update: Whether to force update regardless
+
+        Returns:
+            Tuple of (should_update, reason)
+        """
+        if force_update:
+            return True, "Startup update"
+
+        if has_changed:
+            return True, "Data changed"
+
+        last_update_time_str = self.state.get(STATE_LAST_UPDATE_TIME)
+
+        if not last_update_time_str:
+            return True, "First run detected"
+
+        try:
+            last_update_time = datetime.fromisoformat(last_update_time_str)
+            hours_since_update = (datetime.now() - last_update_time).total_seconds() / 3600
+
+            if hours_since_update >= UPDATE_INTERVAL_HOURS:
+                return (
+                    True,
+                    f"Scheduled 24h refresh ({hours_since_update:.1f}h elapsed)",
+                )
+        except (ValueError, TypeError):
+            return True, "Invalid timestamp - treating as first run"
+
+        return False, "Within 24h window and data unchanged"
+
+    def _update_state(self, state_data: Dict[str, Any]):
+        """Update both display state and timestamp"""
+        self.state.set(STATE_LAST_DISPLAY, state_data)
+        self.state.set(STATE_LAST_UPDATE_TIME, datetime.now().isoformat())
+
     def _handle_error_state(self, error_state: Dict[str, Any], title: str):
         """Handle error state display update
 
@@ -209,39 +210,16 @@ class InkyPiApp:
             title: Title to display on error
         """
         has_changed = self.state.has_changed(STATE_LAST_DISPLAY, error_state)
-
-        # Check when display was last updated
-        last_update_time_str = self.state.get(STATE_LAST_UPDATE_TIME)
-        should_update = has_changed
-
-        if last_update_time_str and not has_changed:
-            try:
-                last_update_time = datetime.fromisoformat(last_update_time_str)
-                hours_since_update = (datetime.now() - last_update_time).total_seconds() / 3600
-                if hours_since_update >= UPDATE_INTERVAL_HOURS:
-                    should_update = True
-            except (ValueError, TypeError):
-                should_update = True
-        elif not last_update_time_str:
-            should_update = True
+        should_update, reason = self._should_update_display(has_changed)
 
         if should_update:
-            if has_changed:
-                self._log_info(f"Error state changed: {error_state['status']}")
-            else:
-                self._log_info(f"Scheduled 24h refresh with error state: {error_state['status']}")
-
-            # Update display to show current timestamp
+            self._log_info(f"{reason} with error state: {error_state['status']}")
             self.show_title_and_date(
                 title, error_state.get("date", self.content.get_current_date())
             )
-            self.state.set(STATE_LAST_DISPLAY, error_state)
-            self.state.set(STATE_LAST_UPDATE_TIME, datetime.now().isoformat())
+            self._update_state(error_state)
         else:
-            self._log_info(
-                f"Error state unchanged and within 24h window - skipping update: "
-                f"{error_state['status']}"
-            )
+            self._log_info(f"{reason} - skipping error state update: {error_state['status']}")
 
     def _log_info(self, message: str):
         """Log info message"""

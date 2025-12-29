@@ -104,24 +104,6 @@ class TestWasteRepository:
         assert schedules is not None
         assert len(schedules) == 2
 
-    @patch("core.waste_repository.APIClient.set_header")
-    def test_set_api_key_configures_header(self, mock_set_header, mock_logger):
-        """Test that set_api_key sets the API key header"""
-        repo = WasteRepository(logger=mock_logger)
-
-        repo.set_api_key("test-key")
-
-        mock_set_header.assert_called_once_with("X-API-Key", "test-key")
-
-    @patch("core.waste_repository.APIClient.set_bearer_token")
-    def test_set_bearer_token_configures_auth(self, mock_set_bearer, mock_logger):
-        """Test that set_bearer_token configures bearer authentication"""
-        repo = WasteRepository(logger=mock_logger)
-
-        repo.set_bearer_token("token123")
-
-        mock_set_bearer.assert_called_once_with("token123")
-
     @patch("core.waste_repository.APIClient.close")
     def test_close_closes_client(self, mock_close, mock_logger):
         """Test that close closes the API client"""

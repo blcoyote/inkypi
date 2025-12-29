@@ -5,8 +5,10 @@ Handles fetching waste collection schedule data from the API.
 """
 
 from typing import List, Optional
-from .models import WasteSchedule
+
 from utils import APIClient
+
+from .models import WasteSchedule
 
 
 class WasteRepository:
@@ -66,62 +68,6 @@ class WasteRepository:
         except Exception as e:
             self._log_error(f"Error parsing waste schedule data: {e}")
             return None
-
-    def get_schedule_by_address(self, address: str) -> Optional[List[WasteSchedule]]:
-        """
-        Fetch waste collection schedule by address
-        Note: This endpoint may not be available in the RenoSyd API
-
-        Args:
-            address: Address to search for
-
-        Returns:
-            List[WasteSchedule]: List of waste schedules or None on failure
-        """
-        self._log_info(f"Fetching waste schedule for address: {address}")
-
-        # Note: Adjust endpoint if address search becomes available
-        endpoint = f"/api/{self.API_VERSION}/toemmekalender/search"
-        params = {"address": address}
-
-        response_data = self.client.get(endpoint, params=params)
-
-        if response_data is None:
-            self._log_error("Failed to fetch waste schedule by address")
-            return None
-
-        try:
-            if isinstance(response_data, list):
-                schedules = [WasteSchedule.from_dict(item) for item in response_data]
-                self._log_info(f"Successfully parsed {len(schedules)} waste schedules")
-                return schedules
-            else:
-                self._log_error("Unexpected response format - expected list")
-                return None
-
-        except Exception as e:
-            self._log_error(f"Error parsing waste schedule data: {e}")
-            return None
-
-    def set_api_key(self, api_key: str):
-        """
-        Set API key for authentication
-
-        Args:
-            api_key: API key for the waste collection service
-        """
-        self.client.set_header("X-API-Key", api_key)
-        self._log_info("API key configured")
-
-    def set_bearer_token(self, token: str):
-        """
-        Set bearer token for authentication
-
-        Args:
-            token: Bearer token
-        """
-        self.client.set_bearer_token(token)
-        self._log_info("Bearer token configured")
 
     def close(self):
         """Close the API client connection"""

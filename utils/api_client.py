@@ -4,8 +4,9 @@ API Client for HTTP requests
 Provides a simple interface for fetching data from REST APIs.
 """
 
-import requests
 from typing import Dict, Optional
+
+import requests
 
 
 class APIClient:
@@ -140,16 +141,6 @@ class APIClient:
         """
         self.session.auth = (username, password)
         self._log_info("Authentication configured")
-
-    def set_bearer_token(self, token: str):
-        """
-        Set bearer token authentication
-
-        Args:
-            token: Bearer token
-        """
-        self.session.headers["Authorization"] = f"Bearer {token}"
-        self._log_info("Bearer token configured")
 
     def _build_url(self, endpoint: str) -> str:
         """Build full URL from base_url and endpoint"""
