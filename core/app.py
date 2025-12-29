@@ -5,6 +5,7 @@ Main application class that coordinates all layers and manages the display workf
 """
 
 import os
+from datetime import datetime
 from typing import Any, Dict
 
 from display import InkyDisplay
@@ -16,6 +17,8 @@ from .waste_repository import WasteRepository
 
 # Constants
 STATE_LAST_DISPLAY = "last_display"
+STATE_LAST_UPDATE_TIME = "last_update_time"
+UPDATE_INTERVAL_HOURS = 24  # Update display every 24 hours even if data unchanged
 
 
 class InkyPiApp:
@@ -70,11 +73,14 @@ class InkyPiApp:
 
         self._log_info("Title and date displayed successfully")
 
-    def show_next_waste_pickup(self):
+    def show_next_waste_pickup(self, force_update: bool = False):
         """
         Fetch and display the next waste collection
         Shows waste types in title field and date in date field
-        Only updates display if data has changed
+        Updates display if data changed, 24h elapsed, or force_update=True
+
+        Args:
+            force_update: If True, forces display update (used on startup)
         """
         self._log_info("Fetching next waste pickup...")
 
@@ -110,23 +116,53 @@ class InkyPiApp:
                 "fractions": next_collection.fraktioner,  # Store full list for comparison
             }
 
-            # Check if data changed (for logging), but always update display
-            # This ensures the timestamp updates on every run
-            # so we can verify the app is still running
+            # Check if data changed (for logging)
             has_changed = self.state.has_changed(STATE_LAST_DISPLAY, current_state)
-            if has_changed:
-                self._log_info(
-                    f"Data changed - updating display: {waste_types} on {collection_date}"
-                )
+
+            # Check when display was last updated
+            last_update_time_str = self.state.get(STATE_LAST_UPDATE_TIME)
+            should_update = has_changed or force_update  # Always update if forced or data changed
+
+            if last_update_time_str and not should_update:
+                try:
+                    last_update_time = datetime.fromisoformat(last_update_time_str)
+                    hours_since_update = (datetime.now() - last_update_time).total_seconds() / 3600
+                    if hours_since_update >= UPDATE_INTERVAL_HOURS:
+                        should_update = True
+                        self._log_info(
+                            f"24 hours elapsed since last update ({hours_since_update:.1f}h)"
+                        )
+                except (ValueError, TypeError):
+                    # Invalid timestamp, treat as first run
+                    should_update = True
+            elif not last_update_time_str and not should_update:
+                # No previous update time, must be first run
+                should_update = True
+                self._log_info("First run detected - updating display")
+
+            # Update display only if needed
+            if should_update:
+                if force_update:
+                    self._log_info(
+                        f"Startup update - updating display: {waste_types} on {collection_date}"
+                    )
+                elif has_changed:
+                    self._log_info(
+                        f"Data changed - updating display: {waste_types} on {collection_date}"
+                    )
+                else:
+                    self._log_info(
+                        f"Scheduled 24h refresh - updating display: "
+                        f"{waste_types} on {collection_date}"
+                    )
+                self.show_title_and_date(waste_types, collection_date)
+                self.state.set(STATE_LAST_DISPLAY, current_state)
+                self.state.set(STATE_LAST_UPDATE_TIME, datetime.now().isoformat())
             else:
                 self._log_info(
-                    f"Data unchanged - refreshing display with current timestamp: "
+                    f"Data unchanged and within 24h window - skipping display update: "
                     f"{waste_types} on {collection_date}"
                 )
-
-            # Always update display to show current timestamp
-            self.show_title_and_date(waste_types, collection_date)
-            self.state.set(STATE_LAST_DISPLAY, current_state)
 
         except Exception as e:
             self._log_error(f"Error fetching waste pickup data: {e}", exc_info=True)
@@ -137,12 +173,16 @@ class InkyPiApp:
             }
             self._handle_error_state(error_state, "Error")
 
-    def run(self):
-        """Main application run method - updates the display"""
+    def run(self, force_update: bool = False):
+        """Main application run method - updates the display
+
+        Args:
+            force_update: If True, forces display update (used on startup)
+        """
         self._log_info("Running InkyPi application...")
 
         # Show next waste pickup
-        self.show_next_waste_pickup()
+        self.show_next_waste_pickup(force_update=force_update)
 
         self._log_info("Application completed successfully")
 
@@ -169,14 +209,39 @@ class InkyPiApp:
             title: Title to display on error
         """
         has_changed = self.state.has_changed(STATE_LAST_DISPLAY, error_state)
-        if has_changed:
-            self._log_info(f"Error state changed: {error_state['status']}")
-        else:
-            self._log_info(f"Refreshing display with error state: {error_state['status']}")
 
-        # Always update display to show current timestamp
-        self.show_title_and_date(title, error_state.get("date", self.content.get_current_date()))
-        self.state.set(STATE_LAST_DISPLAY, error_state)
+        # Check when display was last updated
+        last_update_time_str = self.state.get(STATE_LAST_UPDATE_TIME)
+        should_update = has_changed
+
+        if last_update_time_str and not has_changed:
+            try:
+                last_update_time = datetime.fromisoformat(last_update_time_str)
+                hours_since_update = (datetime.now() - last_update_time).total_seconds() / 3600
+                if hours_since_update >= UPDATE_INTERVAL_HOURS:
+                    should_update = True
+            except (ValueError, TypeError):
+                should_update = True
+        elif not last_update_time_str:
+            should_update = True
+
+        if should_update:
+            if has_changed:
+                self._log_info(f"Error state changed: {error_state['status']}")
+            else:
+                self._log_info(f"Scheduled 24h refresh with error state: {error_state['status']}")
+
+            # Update display to show current timestamp
+            self.show_title_and_date(
+                title, error_state.get("date", self.content.get_current_date())
+            )
+            self.state.set(STATE_LAST_DISPLAY, error_state)
+            self.state.set(STATE_LAST_UPDATE_TIME, datetime.now().isoformat())
+        else:
+            self._log_info(
+                f"Error state unchanged and within 24h window - skipping update: "
+                f"{error_state['status']}"
+            )
 
     def _log_info(self, message: str):
         """Log info message"""

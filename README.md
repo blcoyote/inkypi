@@ -24,6 +24,7 @@ A Python application for Raspberry Pi that displays waste collection schedules o
 ### On Raspberry Pi
 
 1. Clone or download this project to your Raspberry Pi:
+
    ```bash
    cd ~
    git clone <repository-url> inkypi
@@ -31,16 +32,19 @@ A Python application for Raspberry Pi that displays waste collection schedules o
    ```
 
 2. Run the setup script:
+
    ```bash
    chmod +x setup.sh
    ./setup.sh
    ```
 
 3. Configure your waste collection address:
+
    ```bash
    cp .env.example .env
    nano .env
    ```
+
    Edit the `NUMMER` variable with your address number.
 
 4. The service will start automatically on boot. To start it now:
@@ -51,27 +55,31 @@ A Python application for Raspberry Pi that displays waste collection schedules o
 ### On Windows/Mac (Development)
 
 1. Run the setup script:
+
    ```bash
    # Windows
    setup.bat
-   
+
    # Mac/Linux
    chmod +x setup.sh
    ./setup.sh
    ```
 
 2. Configure environment:
+
    ```bash
    cp .env.example .env
    ```
+
    Edit `.env` with your configuration.
 
 3. Run the application:
+
    ```bash
    # Windows
    venv\Scripts\activate
    python main.py
-   
+
    # Mac/Linux
    source venv/bin/activate
    python main.py
@@ -153,6 +161,8 @@ The project follows a layered architecture with separation of concerns:
 
 ## Service Management (Raspberry Pi)
 
+Commands to handle autolaunching as service on a Rasberry Pi. The setup script also includes the option to enable the service.
+
 ```bash
 # View status
 sudo systemctl status inkypi
@@ -210,6 +220,7 @@ pytest --cov --cov-report=html
 ```
 
 For detailed testing information, see:
+
 - [TESTING.md](TESTING.md) - Quick reference guide
 - [TEST_PLAN.md](TEST_PLAN.md) - Comprehensive test strategy
 - [TEST_SUMMARY.md](TEST_SUMMARY.md) - Implementation summary
@@ -217,6 +228,7 @@ For detailed testing information, see:
 ### Code Style
 
 The project uses standard Python conventions:
+
 - PEP 8 style guide
 - Type hints where applicable
 - Comprehensive docstrings
@@ -226,20 +238,24 @@ The project uses standard Python conventions:
 ## Troubleshooting
 
 ### Display shows all white
+
 - Check that state.json was deleted to force update
 - Verify SPI is enabled: `ls /dev/spi*`
 - Check service logs: `sudo journalctl -u inkypi -f`
 
 ### Text is too small
+
 - Ensure fonts are installed: `sudo apt-get install fonts-dejavu fonts-liberation`
 - Check font loading in logs
 
 ### Service won't start
+
 - Check Python path in service: `sudo systemctl cat inkypi`
 - Verify virtual environment exists: `ls ~/inkypi/venv`
 - Check for errors: `sudo journalctl -u inkypi -n 50`
 
 ### API errors
+
 - Verify NUMMER in `.env` is correct
 - Check internet connection
 - Test API manually: `python test_waste_repository.py`

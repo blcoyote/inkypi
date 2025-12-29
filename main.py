@@ -43,11 +43,12 @@ def main():
     logger.info("Starting InkyPi with hourly updates...")
 
     try:
-        # Run immediately on startup
-        logger.info("Running initial update...")
-        update_display()
+        # Run immediately on startup with forced update
+        logger.info("Running initial update on startup...")
+        with InkyPiApp(logger=logger) as app:
+            app.run(force_update=True)
 
-        # Schedule to run every hour
+        # Schedule to run every hour (without forced update)
         schedule.every().hour.do(update_display)
         logger.info("Scheduled updates every hour")
 
