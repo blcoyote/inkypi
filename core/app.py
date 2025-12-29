@@ -175,9 +175,7 @@ class InkyPiApp:
             self._log_info(f"Refreshing display with error state: {error_state['status']}")
 
         # Always update display to show current timestamp
-        self.show_title_and_date(
-            title, error_state.get("date", self.content.get_current_date())
-        )
+        self.show_title_and_date(title, error_state.get("date", self.content.get_current_date()))
         self.state.set(STATE_LAST_DISPLAY, error_state)
 
     def _log_info(self, message: str):
