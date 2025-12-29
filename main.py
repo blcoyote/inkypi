@@ -9,12 +9,13 @@ Runs on startup and updates every hour.
 
 import sys
 import time
+
 import schedule
+from dotenv import load_dotenv
 
 # Import from organized layers
 from core import InkyPiApp
 from utils import setup_logger
-from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,6 +26,9 @@ logger = setup_logger(__name__)
 
 def update_display():
     """Update the display - called on schedule"""
+    logger.info("=" * 50)
+    logger.info("Scheduled update triggered")
+    logger.info("=" * 50)
     try:
         with InkyPiApp(logger=logger) as app:
             app.run()

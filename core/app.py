@@ -5,12 +5,14 @@ Main application class that coordinates all layers and manages the display workf
 """
 
 import os
-from typing import Dict, Any
+from typing import Any, Dict
+
 from display import InkyDisplay
 from rendering import Layouts
+from utils import StateManager
+
 from .content_provider import ContentProvider
 from .waste_repository import WasteRepository
-from utils import StateManager
 
 # Constants
 STATE_LAST_DISPLAY = "last_display"
@@ -108,17 +110,23 @@ class InkyPiApp:
                 "fractions": next_collection.fraktioner,  # Store full list for comparison
             }
 
-            # Only update display if data has changed
-            if self.state.has_changed(STATE_LAST_DISPLAY, current_state):
+            # Check if data changed (for logging), but always update display
+            # This ensures the timestamp updates on every run
+            # so we can verify the app is still running
+            has_changed = self.state.has_changed(STATE_LAST_DISPLAY, current_state)
+            if has_changed:
                 self._log_info(
                     f"Data changed - updating display: {waste_types} on {collection_date}"
                 )
-                self.show_title_and_date(waste_types, collection_date)
-                self.state.set(STATE_LAST_DISPLAY, current_state)
             else:
                 self._log_info(
-                    f"Data unchanged - skipping display update: {waste_types} on {collection_date}"
+                    f"Data unchanged - refreshing display with current timestamp: "
+                    f"{waste_types} on {collection_date}"
                 )
+
+            # Always update display to show current timestamp
+            self.show_title_and_date(waste_types, collection_date)
+            self.state.set(STATE_LAST_DISPLAY, current_state)
 
         except Exception as e:
             self._log_error(f"Error fetching waste pickup data: {e}", exc_info=True)
@@ -160,13 +168,17 @@ class InkyPiApp:
             error_state: State dictionary for the error
             title: Title to display on error
         """
-        if self.state.has_changed(STATE_LAST_DISPLAY, error_state):
-            self.show_title_and_date(
-                title, error_state.get("date", self.content.get_current_date())
-            )
-            self.state.set(STATE_LAST_DISPLAY, error_state)
+        has_changed = self.state.has_changed(STATE_LAST_DISPLAY, error_state)
+        if has_changed:
+            self._log_info(f"Error state changed: {error_state['status']}")
         else:
-            self._log_info(f"Display unchanged ({error_state['status']} state)")
+            self._log_info(f"Refreshing display with error state: {error_state['status']}")
+
+        # Always update display to show current timestamp
+        self.show_title_and_date(
+            title, error_state.get("date", self.content.get_current_date())
+        )
+        self.state.set(STATE_LAST_DISPLAY, error_state)
 
     def _log_info(self, message: str):
         """Log info message"""
