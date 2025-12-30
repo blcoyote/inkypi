@@ -172,8 +172,6 @@ class TestPlannedCollection:
 
     def test_get_date_str_returns_i_dag_for_today(self):
         """Test that get_date_str returns 'i dag' for today's date"""
-        from unittest.mock import patch
-
         # Create collection with today's date
         today = datetime.now()
         data = {"dato": today.isoformat(), "fraktioner": ["Test"]}
