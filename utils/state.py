@@ -5,8 +5,8 @@ Handles persistent state storage for the application.
 """
 
 import json
-from typing import Dict, Any
 from pathlib import Path
+from typing import Any, Dict
 
 
 class StateManager:
@@ -70,6 +70,16 @@ class StateManager:
             value: Value to store
         """
         self._state[key] = value
+        self._save_state()
+
+    def update(self, updates: Dict[str, Any]):
+        """
+        Update multiple values in state and save once
+
+        Args:
+            updates: Dictionary of key-value pairs to update
+        """
+        self._state.update(updates)
         self._save_state()
 
     def has_changed(self, key: str, new_value: Any) -> bool:

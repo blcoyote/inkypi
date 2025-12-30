@@ -48,9 +48,9 @@ def main():
         with InkyPiApp(logger=logger) as app:
             app.run(force_update=True)
 
-        # Schedule to run every hour (without forced update)
-        schedule.every().hour.do(update_display)
-        logger.info("Scheduled updates every hour")
+        # Schedule to run at the top of every hour (without forced update)
+        schedule.every().hour.at(":00").do(update_display)
+        logger.info("Scheduled updates at the top of every hour")
 
         # Keep running and check schedule
         logger.info("Entering main loop (press Ctrl+C to exit)...")
