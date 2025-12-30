@@ -4,9 +4,11 @@ Unit Tests for Data Models
 Tests for Address, Standplads, PlannedCollection, and WasteSchedule models.
 """
 
-import pytest
 from datetime import datetime, timezone
-from core.models import Address, Standplads, PlannedCollection, WasteSchedule
+
+import pytest
+
+from core.models import Address, PlannedCollection, Standplads, WasteSchedule
 
 
 @pytest.mark.unit
@@ -167,6 +169,50 @@ class TestPlannedCollection:
         fractions_str = collection.get_fractions_str()
 
         assert fractions_str == "Restaffald"
+
+    def test_get_date_str_returns_i_dag_for_today(self):
+        """Test that get_date_str returns 'i dag' for today's date"""
+        from unittest.mock import patch
+
+        # Create collection with today's date
+        today = datetime.now()
+        data = {"dato": today.isoformat(), "fraktioner": ["Test"]}
+        collection = PlannedCollection.from_dict(data)
+
+        date_str = collection.get_date_str()
+
+        assert date_str == "i dag"
+
+    def test_get_date_str_returns_i_morgen_for_tomorrow(self):
+        """Test that get_date_str returns 'i morgen' for tomorrow's date"""
+        from datetime import timedelta
+
+        # Create collection with tomorrow's date
+        tomorrow = datetime.now() + timedelta(days=1)
+        data = {"dato": tomorrow.isoformat(), "fraktioner": ["Test"]}
+        collection = PlannedCollection.from_dict(data)
+
+        date_str = collection.get_date_str()
+
+        assert date_str == "i morgen"
+
+    def test_get_date_str_returns_date_for_future(self):
+        """Test that get_date_str returns YYYY-MM-DD format for future dates"""
+        from datetime import timedelta
+
+        # Create collection with date 5 days in future
+        future = datetime.now() + timedelta(days=5)
+        data = {"dato": future.isoformat(), "fraktioner": ["Test"]}
+        collection = PlannedCollection.from_dict(data)
+
+        date_str = collection.get_date_str()
+
+        # Should be in YYYY-MM-DD format, not "i dag" or "i morgen"
+        assert date_str != "i dag"
+        assert date_str != "i morgen"
+        assert len(date_str) == 10
+        assert date_str[4] == "-" and date_str[7] == "-"
+        assert date_str == future.strftime("%Y-%m-%d")
 
 
 @pytest.mark.unit

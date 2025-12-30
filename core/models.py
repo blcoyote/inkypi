@@ -5,7 +5,7 @@ Data classes for API responses and domain objects.
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 
@@ -100,8 +100,16 @@ class PlannedCollection:
         return cls(dato=dato, fraktioner=data.get("fraktioner", []))
 
     def get_date_str(self) -> str:
-        """Get formatted date string"""
-        return self.dato.strftime("%Y-%m-%d")
+        """Get formatted date string - shows 'i dag' for today, 'i morgen' for tomorrow"""
+        today = datetime.now().date()
+        collection_date = self.dato.date()
+
+        if collection_date == today:
+            return "i dag"
+        elif collection_date == today + timedelta(days=1):
+            return "i morgen"
+        else:
+            return self.dato.strftime("%Y-%m-%d")
 
     def get_fractions_str(self) -> str:
         """Get comma-separated fractions string"""
