@@ -134,9 +134,17 @@ class WasteSchedule:
         return cls(standplads=standplads, planlagtetømninger=planlagtetømninger)
 
     def get_next_collection(self) -> Optional[PlannedCollection]:
-        """Get the next upcoming collection"""
+        """Get the next upcoming collection (including today before noon)"""
         now = datetime.now(timezone.utc)
-        upcoming = [c for c in self.planlagtetømninger if c.dato >= now]
+        today = now.date()
+        current_hour = now.hour
+
+        # After 12:00, skip today's collection since pickup is typically before noon
+        if current_hour >= 12:
+            upcoming = [c for c in self.planlagtetømninger if c.dato.date() > today]
+        else:
+            # Before 12:00, include today's collection
+            upcoming = [c for c in self.planlagtetømninger if c.dato.date() >= today]
 
         if upcoming:
             return min(upcoming, key=lambda c: c.dato)
