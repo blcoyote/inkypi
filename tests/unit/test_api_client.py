@@ -22,6 +22,8 @@ class TestAPIClient:
 
         assert client.base_url == "http://test.com"
         assert client.timeout == 10
+        assert client.max_retries == 3
+        assert client.backoff_base == 1.0
         assert isinstance(client.session, requests.Session)
 
     def test_init_custom_timeout(self, mock_logger):
@@ -29,6 +31,13 @@ class TestAPIClient:
         client = APIClient(timeout=30, logger=mock_logger)
 
         assert client.timeout == 30
+
+    def test_init_custom_retry_settings(self, mock_logger):
+        """Test that __init__ accepts custom retry settings"""
+        client = APIClient(max_retries=5, backoff_base=2.0, logger=mock_logger)
+
+        assert client.max_retries == 5
+        assert client.backoff_base == 2.0
 
     @patch("requests.Session.get")
     def test_get_success_returns_json(self, mock_get, mock_logger):
@@ -93,25 +102,27 @@ class TestAPIClient:
 
     @patch("requests.Session.get")
     def test_get_timeout_returns_none(self, mock_get, mock_logger):
-        """Test that get returns None on timeout"""
+        """Test that get returns None on timeout with no retries configured"""
         mock_get.side_effect = requests.exceptions.Timeout()
 
-        client = APIClient(base_url="http://test.com", logger=mock_logger)
+        client = APIClient(base_url="http://test.com", max_retries=0, logger=mock_logger)
         result = client.get("/endpoint")
 
         assert result is None
         mock_logger.error.assert_called()
+        assert mock_get.call_count == 1
 
     @patch("requests.Session.get")
     def test_get_connection_error_returns_none(self, mock_get, mock_logger):
-        """Test that get returns None on connection error"""
+        """Test that get returns None on connection error with no retries configured"""
         mock_get.side_effect = requests.exceptions.ConnectionError()
 
-        client = APIClient(base_url="http://test.com", logger=mock_logger)
+        client = APIClient(base_url="http://test.com", max_retries=0, logger=mock_logger)
         result = client.get("/endpoint")
 
         assert result is None
         mock_logger.error.assert_called()
+        assert mock_get.call_count == 1
 
     @patch("requests.Session.get")
     def test_get_http_error_returns_none(self, mock_get, mock_logger):
@@ -142,6 +153,83 @@ class TestAPIClient:
 
         assert result is None
         mock_logger.error.assert_called()
+        # JSON errors are not retryable — only one attempt
+        assert mock_get.call_count == 1
+
+    @patch("time.sleep")
+    @patch("requests.Session.get")
+    def test_get_retries_on_timeout(self, mock_get, mock_sleep, mock_logger):
+        """Test that get retries the configured number of times on timeout"""
+        mock_get.side_effect = requests.exceptions.Timeout()
+
+        client = APIClient(base_url="http://test.com", max_retries=3, logger=mock_logger)
+        result = client.get("/endpoint")
+
+        assert result is None
+        assert mock_get.call_count == 4  # 1 initial + 3 retries
+        assert mock_sleep.call_count == 3  # sleep before each retry
+
+    @patch("time.sleep")
+    @patch("requests.Session.get")
+    def test_get_retries_on_connection_error(self, mock_get, mock_sleep, mock_logger):
+        """Test that get retries the configured number of times on connection error"""
+        mock_get.side_effect = requests.exceptions.ConnectionError()
+
+        client = APIClient(base_url="http://test.com", max_retries=2, logger=mock_logger)
+        result = client.get("/endpoint")
+
+        assert result is None
+        assert mock_get.call_count == 3  # 1 initial + 2 retries
+        assert mock_sleep.call_count == 2
+
+    @patch("time.sleep")
+    @patch("requests.Session.get")
+    def test_get_succeeds_on_retry_after_transient_failure(self, mock_get, mock_sleep, mock_logger):
+        """Test that get returns data when a retry succeeds after an initial failure"""
+        success_response = Mock()
+        success_response.json.return_value = {"data": "ok"}
+        success_response.raise_for_status = Mock()
+
+        mock_get.side_effect = [requests.exceptions.Timeout(), success_response]
+
+        client = APIClient(base_url="http://test.com", max_retries=3, logger=mock_logger)
+        result = client.get("/endpoint")
+
+        assert result == {"data": "ok"}
+        assert mock_get.call_count == 2  # failed once, succeeded on first retry
+        assert mock_sleep.call_count == 1
+
+    @patch("time.sleep")
+    @patch("requests.Session.get")
+    def test_get_exponential_backoff_delays(self, mock_get, mock_sleep, mock_logger):
+        """Test that backoff delays follow exponential progression: base, 2*base, 4*base"""
+        mock_get.side_effect = requests.exceptions.Timeout()
+
+        client = APIClient(
+            base_url="http://test.com", max_retries=3, backoff_base=1.0, logger=mock_logger
+        )
+        client.get("/endpoint")
+
+        sleep_calls = [call.args[0] for call in mock_sleep.call_args_list]
+        assert sleep_calls == [1.0, 2.0, 4.0]
+
+    @patch("time.sleep")
+    @patch("requests.Session.get")
+    def test_get_http_error_does_not_retry(self, mock_get, mock_sleep, mock_logger):
+        """Test that HTTP errors (4xx/5xx) are not retried"""
+        mock_response = Mock()
+        mock_response.status_code = 500
+        http_error = requests.exceptions.HTTPError()
+        http_error.response = mock_response
+        mock_response.raise_for_status.side_effect = http_error
+        mock_get.return_value = mock_response
+
+        client = APIClient(base_url="http://test.com", max_retries=3, logger=mock_logger)
+        result = client.get("/endpoint")
+
+        assert result is None
+        assert mock_get.call_count == 1  # no retries
+        mock_sleep.assert_not_called()
 
     @patch("requests.Session.post")
     def test_post_success_returns_json(self, mock_post, mock_logger):
