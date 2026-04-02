@@ -5,7 +5,7 @@ Data classes for API responses and domain objects.
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 
@@ -135,11 +135,14 @@ class WasteSchedule:
 
     def get_next_collection(self) -> Optional[PlannedCollection]:
         """Get the next upcoming collection (including today)"""
-        today = datetime.now(timezone.utc).date()
+        # Use local date to match how the API schedules are expressed, and compare
+        # only date objects to avoid TypeError from mixing timezone-aware and
+        # timezone-naive datetimes when the API omits timezone information.
+        today = datetime.now().date()
         upcoming = [c for c in self.planlagtetømninger if c.dato.date() >= today]
 
         if upcoming:
-            return min(upcoming, key=lambda c: c.dato)
+            return min(upcoming, key=lambda c: c.dato.date())
         return None
 
     def get_collections_for_date(self, target_date: datetime) -> List[PlannedCollection]:
