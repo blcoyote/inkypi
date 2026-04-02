@@ -4,7 +4,7 @@ Unit Tests for Data Models
 Tests for Address, Standplads, PlannedCollection, and WasteSchedule models.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -131,8 +131,6 @@ class TestPlannedCollection:
 
     def test_get_date_str_formats_correctly(self, sample_planned_collection_data):
         """Test that get_date_str returns YYYY-MM-DD format"""
-        from datetime import timedelta
-
         collection = PlannedCollection.from_dict(sample_planned_collection_data)
         date_str = collection.get_date_str()
 
@@ -183,8 +181,6 @@ class TestPlannedCollection:
 
     def test_get_date_str_returns_i_morgen_for_tomorrow(self):
         """Test that get_date_str returns 'i morgen' for tomorrow's date"""
-        from datetime import timedelta
-
         # Create collection with tomorrow's date
         tomorrow = datetime.now() + timedelta(days=1)
         data = {"dato": tomorrow.isoformat(), "fraktioner": ["Test"]}
@@ -196,8 +192,6 @@ class TestPlannedCollection:
 
     def test_get_date_str_returns_date_for_future(self):
         """Test that get_date_str returns YYYY-MM-DD format for future dates"""
-        from datetime import timedelta
-
         # Create collection with date 5 days in future
         future = datetime.now() + timedelta(days=5)
         data = {"dato": future.isoformat(), "fraktioner": ["Test"]}
@@ -238,8 +232,6 @@ class TestWasteSchedule:
 
     def test_get_next_collection_returns_earliest_future_date(self):
         """Test that get_next_collection returns earliest upcoming collection"""
-        from datetime import timedelta
-
         future_1 = (
             (datetime.now(timezone.utc) + timedelta(days=20)).isoformat().replace("+00:00", "Z")
         )
@@ -275,8 +267,6 @@ class TestWasteSchedule:
 
     def test_get_next_collection_no_future_dates_returns_none(self):
         """Test that get_next_collection returns None when all dates are past"""
-        from datetime import timedelta
-
         past_1 = (
             (datetime.now(timezone.utc) - timedelta(days=365)).isoformat().replace("+00:00", "Z")
         )

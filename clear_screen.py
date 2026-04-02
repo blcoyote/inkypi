@@ -6,18 +6,18 @@ This is the main entry point for the InkyPi display application.
 Initializes the InkyPHAT display and clears it to white.
 """
 
-import sys
-import os
 import logging
+import os
+import sys
 from pathlib import Path
 
-# Add stubs directory for Windows development
+# Add stubs directory for Windows development before any hardware imports
 if not os.path.exists("/etc/rpi-issue"):
     stubs_path = Path(__file__).parent / "stubs"
     if stubs_path.exists():
         sys.path.insert(0, str(stubs_path))
 
-from PIL import Image
+from PIL import Image  # pylint: disable=wrong-import-position
 
 try:
     from inky.auto import auto
@@ -42,12 +42,16 @@ class InkyPiApp:
         logger.info("Initializing InkyPi application...")
 
         # Initialize the InkyPHAT display
-        try:
+        try:  # pylint: disable=broad-exception-caught
             self.display = auto()
-            logger.info(f"Display initialized: {self.display.width}x{self.display.height} pixels")
-            logger.info(f"Display color: {self.display.colour}")
+            logger.info(
+                "Display initialized: %sx%s pixels",
+                self.display.width,
+                self.display.height,
+            )
+            logger.info("Display color: %s", self.display.colour)
         except Exception as e:
-            logger.error(f"Failed to initialize display: {e}")
+            logger.error("Failed to initialize display: %s", e)
             raise
 
     def clear_to_white(self):
@@ -87,8 +91,8 @@ def main():
         logger.info("Application interrupted by user")
         sys.exit(0)
 
-    except Exception as e:
-        logger.error(f"Application error: {e}", exc_info=True)
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logger.error("Application error: %s", e, exc_info=True)
         sys.exit(1)
 
 

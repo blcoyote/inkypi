@@ -4,8 +4,11 @@ Unit Tests for StateManager
 Tests for state persistence and change detection.
 """
 
-import pytest
+# pylint: disable=protected-access  # tests access _state directly to verify persistence
 import json
+
+import pytest
+
 from utils.state import StateManager
 
 
@@ -24,7 +27,7 @@ class TestStateManager:
         """Test that StateManager loads existing state from file"""
         # Create state file with data
         existing_data = {"key1": "value1", "key2": 42}
-        with open(temp_state_file, "w") as f:
+        with open(temp_state_file, "w", encoding="utf-8") as f:
             json.dump(existing_data, f)
 
         state = StateManager(state_file=str(temp_state_file), logger=mock_logger)
@@ -35,7 +38,7 @@ class TestStateManager:
     def test_init_handles_corrupt_json_gracefully(self, temp_state_file, mock_logger):
         """Test that StateManager handles corrupt JSON file"""
         # Create corrupt JSON file
-        with open(temp_state_file, "w") as f:
+        with open(temp_state_file, "w", encoding="utf-8") as f:
             f.write("{ invalid json }")
 
         state = StateManager(state_file=str(temp_state_file), logger=mock_logger)
@@ -79,7 +82,7 @@ class TestStateManager:
 
         # Check file was saved
         assert temp_state_file.exists()
-        with open(temp_state_file, "r") as f:
+        with open(temp_state_file, "r", encoding="utf-8") as f:
             saved_data = json.load(f)
         assert saved_data["test_key"] == "test_value"
 
@@ -151,7 +154,7 @@ class TestStateManager:
         assert state._state == {}
 
         # Verify file was updated
-        with open(temp_state_file, "r") as f:
+        with open(temp_state_file, "r", encoding="utf-8") as f:
             saved_data = json.load(f)
         assert saved_data == {}
 

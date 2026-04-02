@@ -27,6 +27,9 @@ exclude = [
     'htmlcov',
 ]
 
+[tool.pylint.main]
+ignore-paths = ["venv", ".venv", "stubs", "htmlcov"]
+
 [tool.pylint.messages_control]
 max-line-length = 100
 disable = [

@@ -4,13 +4,15 @@ Data Models
 Data classes for API responses and domain objects.
 """
 
+# pylint: disable=non-ascii-name  # Field names mirror the Danish RenoSyd API exactly
+
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import List, Optional
 
 
 @dataclass
-class Address:
+class Address:  # pylint: disable=too-many-instance-attributes
     """Address information"""
 
     navn: str
@@ -46,7 +48,7 @@ class Address:
 
 
 @dataclass
-class Standplads:
+class Standplads:  # pylint: disable=too-many-instance-attributes
     """Collection point (waste bin location)"""
 
     nummer: str
@@ -65,7 +67,7 @@ class Standplads:
         sidstændret_str = data.get("sidstændret", "")
         try:
             sidstændret = datetime.fromisoformat(sidstændret_str.replace("Z", "+00:00"))
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             sidstændret = datetime.now()
 
         return cls(
@@ -94,7 +96,7 @@ class PlannedCollection:
         dato_str = data.get("dato", "")
         try:
             dato = datetime.fromisoformat(dato_str.replace("Z", "+00:00"))
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             dato = datetime.now()
 
         return cls(dato=dato, fraktioner=data.get("fraktioner", []))
@@ -106,10 +108,9 @@ class PlannedCollection:
 
         if collection_date == today:
             return "i dag"
-        elif collection_date == today + timedelta(days=1):
+        if collection_date == today + timedelta(days=1):
             return "i morgen"
-        else:
-            return self.dato.strftime("%Y-%m-%d")
+        return self.dato.strftime("%Y-%m-%d")
 
     def get_fractions_str(self) -> str:
         """Get comma-separated fractions string"""

@@ -4,6 +4,8 @@ Unit Tests for APIClient
 Tests for HTTP client wrapper utility.
 """
 
+# pylint: disable=protected-access  # tests routinely access private methods for verification
+
 from unittest.mock import Mock, patch
 
 import pytest
@@ -13,7 +15,7 @@ from utils.api_client import APIClient
 
 
 @pytest.mark.unit
-class TestAPIClient:
+class TestAPIClient:  # pylint: disable=too-many-public-methods
     """Tests for APIClient utility"""
 
     def test_init_creates_session(self, mock_logger):

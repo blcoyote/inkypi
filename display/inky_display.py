@@ -4,9 +4,9 @@ InkyPHAT Display Abstraction Layer
 This module handles all InkyPHAT-specific hardware operations.
 """
 
-import sys
 import os
 import platform
+import sys
 from pathlib import Path
 
 
@@ -17,10 +17,10 @@ def _is_raspberry_pi():
         return True
     if os.path.exists("/proc/device-tree/model"):
         try:
-            with open("/proc/device-tree/model", "r") as f:
+            with open("/proc/device-tree/model", "r", encoding="utf-8") as f:
                 if "raspberry pi" in f.read().lower():
                     return True
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             pass
     # Check for ARM architecture (common on RPi)
     machine = platform.machine().lower()
@@ -42,7 +42,7 @@ except ImportError as e:
     raise ImportError(
         f"Failed to import inky library: {e}. "
         "Please run the setup script to install dependencies."
-    )
+    ) from e
 
 
 class InkyDisplay:
@@ -63,7 +63,7 @@ class InkyDisplay:
         self.logger = logger
         self._log_info("Initializing InkyPHAT display...")
 
-        try:
+        try:  # pylint: disable=broad-exception-caught
             self._display = auto()
             self.width = self._display.width
             self.height = self._display.height
@@ -110,7 +110,7 @@ class InkyDisplay:
         Args:
             color: Color to clear to (default: WHITE)
         """
-        from PIL import Image
+        from PIL import Image  # pylint: disable=import-outside-toplevel
 
         self._log_info(f"Clearing display to color {color}...")
         image = Image.new("P", (self.width, self.height), color)
