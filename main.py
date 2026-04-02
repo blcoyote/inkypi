@@ -47,24 +47,32 @@ def main():
         logger.info("Running initial update on startup...")
         with InkyPiApp(logger=logger) as app:
             app.run(force_update=True)
+    except ValueError as e:
+        # Missing required config (e.g. NUMMER) - unrecoverable
+        logger.error(f"Configuration error: {e}", exc_info=True)
+        sys.exit(1)
+    except Exception as e:
+        # Startup failure is non-fatal; log and continue to the schedule
+        logger.error(f"Initial update failed: {e}", exc_info=True)
 
-        # Schedule to run at the top of every hour (without forced update)
-        schedule.every().hour.at(":00").do(update_display)
-        logger.info("Scheduled updates at the top of every hour")
+    # Schedule to run at the top of every hour (without forced update)
+    schedule.every().hour.at(":00").do(update_display)
+    logger.info("Scheduled updates at the top of every hour")
 
-        # Keep running and check schedule
-        logger.info("Entering main loop (press Ctrl+C to exit)...")
+    # Keep running and check schedule
+    logger.info("Entering main loop (press Ctrl+C to exit)...")
+    try:
         while True:
-            schedule.run_pending()
+            try:
+                schedule.run_pending()
+            except Exception as e:
+                # Job-level exceptions should already be caught inside update_display(),
+                # but guard here so a leaked exception never kills the loop.
+                logger.error(f"Unexpected scheduler error: {e}", exc_info=True)
             time.sleep(60)  # Check every minute
-
     except KeyboardInterrupt:
         logger.info("Application interrupted by user")
         sys.exit(0)
-
-    except Exception as e:
-        logger.error(f"Application error: {e}", exc_info=True)
-        sys.exit(1)
 
 
 if __name__ == "__main__":

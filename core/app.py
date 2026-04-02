@@ -71,21 +71,22 @@ class InkyPiApp:
         """
         Fetch and display the next waste collection
         Shows waste types in title field and date in date field
-        Updates display every hour or when force_update=True
+        Skips the display refresh when data is unchanged, unless force_update=True.
 
         Args:
-            force_update: If True, always updates display (used on boot)
+            force_update: If True, always refreshes the display even when data has not
+                          changed. Used on boot to ensure the screen shows current data.
         """
-        self._log_info("Fetching next waste pickup...")
+        self._log_info(f"Fetching next waste pickup (force_update={force_update})...")
 
         try:
             # Fetch waste schedule
             schedules = self.waste_repo.get_schedule(nummer=self.nummer)
 
             if not schedules:
-                self._log_error("No waste schedule data available")
-                error_state = {"status": "no_data", "date": self.content.get_current_date()}
-                self._handle_error_state(error_state, "No Data")
+                # Transient API failure - keep the last good display rather than
+                # overwriting it with an unhelpful "No Data" message.
+                self._log_error("No waste schedule data available - skipping display update")
                 return
 
             # Get next collection
@@ -109,6 +110,13 @@ class InkyPiApp:
                 "collection_date": collection_date,
                 "fractions": next_collection.fraktioner,
             }
+
+            # Skip the display refresh when nothing has changed (saves e-ink cycles).
+            # On boot (force_update=True) always refresh so the screen is up-to-date.
+            display_key = (waste_types, collection_date)
+            if not force_update and not self.state.has_changed(STATE_LAST_DISPLAY, current_state):
+                self._log_info(f"Display data unchanged ({display_key}), skipping refresh")
+                return
 
             # Update display
             self._log_info(f"Updating display: {waste_types} on {collection_date}")
