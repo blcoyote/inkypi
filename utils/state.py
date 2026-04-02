@@ -6,7 +6,7 @@ Handles persistent state storage for the application.
 
 import json
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
 
 class StateManager:
@@ -32,10 +32,10 @@ class StateManager:
 
         try:
             with open(self.state_file, "r", encoding="utf-8") as f:
-                state = json.load(f)
+                state = cast(Dict[str, Any], json.load(f))
                 self._log_info(f"Loaded state from {self.state_file}")
                 return state
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             self._log_error(f"Error loading state file: {e}")
             return {}
 
@@ -45,7 +45,7 @@ class StateManager:
             with open(self.state_file, "w", encoding="utf-8") as f:
                 json.dump(self._state, f, indent=2, ensure_ascii=False)
                 self._log_info(f"Saved state to {self.state_file}")
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             self._log_error(f"Error saving state file: {e}")
 
     def get(self, key: str, default=None) -> Any:
@@ -94,7 +94,7 @@ class StateManager:
             True if value has changed or doesn't exist
         """
         old_value = self.get(key)
-        has_changed = old_value != new_value
+        has_changed = bool(old_value != new_value)
 
         if has_changed:
             self._log_info(f"State changed for '{key}': {old_value} -> {new_value}")

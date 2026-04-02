@@ -4,9 +4,11 @@ Unit Tests for ContentProvider
 Tests for content formatting utilities.
 """
 
-import pytest
 from datetime import datetime
 from unittest.mock import patch
+
+import pytest
+
 from core.content_provider import ContentProvider
 
 

@@ -123,7 +123,7 @@ class InkyPiApp:
             self.show_title_and_date(waste_types, collection_date)
             self._update_state(current_state)
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             self._log_error(f"Error fetching waste pickup data: {e}", exc_info=True)
             error_state = {
                 "status": "error",

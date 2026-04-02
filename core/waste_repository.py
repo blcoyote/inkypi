@@ -61,11 +61,10 @@ class WasteRepository:
                 schedules = [WasteSchedule.from_dict(item) for item in response_data]
                 self._log_info(f"Successfully parsed {len(schedules)} waste schedules")
                 return schedules
-            else:
-                self._log_error("Unexpected response format - expected list")
-                return None
+            self._log_error("Unexpected response format - expected list")
+            return None
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             self._log_error(f"Error parsing waste schedule data: {e}")
             return None
 

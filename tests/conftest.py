@@ -4,9 +4,11 @@ Shared Test Fixtures
 Global pytest fixtures available to all tests.
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
+# pylint: disable=redefined-outer-name  # pytest fixture injection always redefines outer names
+from datetime import datetime, timedelta, timezone
 from unittest.mock import Mock
+
+import pytest
 
 
 @pytest.fixture
@@ -91,7 +93,7 @@ def sample_api_response(sample_standplads_data, sample_planned_collection_data):
 @pytest.fixture
 def sample_waste_schedule(sample_api_response):
     """Parsed WasteSchedule object"""
-    from core.models import WasteSchedule
+    from core.models import WasteSchedule  # pylint: disable=import-outside-toplevel
 
     return WasteSchedule.from_dict(sample_api_response[0])
 

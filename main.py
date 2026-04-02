@@ -33,9 +33,9 @@ def update_display():
         with InkyPiApp(logger=logger) as app:
             app.run()
     except ValueError as e:
-        logger.error(f"Configuration error: {e}", exc_info=True)
-    except Exception as e:
-        logger.error(f"Error updating display: {e}", exc_info=True)
+        logger.error("Configuration error: %s", e, exc_info=True)
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        logger.error("Error updating display: %s", e, exc_info=True)
 
 
 def main():
@@ -49,11 +49,11 @@ def main():
             app.run(force_update=True)
     except ValueError as e:
         # Missing required config (e.g. NUMMER) - unrecoverable
-        logger.error(f"Configuration error: {e}", exc_info=True)
+        logger.error("Configuration error: %s", e, exc_info=True)
         sys.exit(1)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         # Startup failure is non-fatal; log and continue to the schedule
-        logger.error(f"Initial update failed: {e}", exc_info=True)
+        logger.error("Initial update failed: %s", e, exc_info=True)
 
     # Schedule to run at the top of every hour (without forced update)
     schedule.every().hour.at(":00").do(update_display)
@@ -65,10 +65,10 @@ def main():
         while True:
             try:
                 schedule.run_pending()
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 # Job-level exceptions should already be caught inside update_display(),
                 # but guard here so a leaked exception never kills the loop.
-                logger.error(f"Unexpected scheduler error: {e}", exc_info=True)
+                logger.error("Unexpected scheduler error: %s", e, exc_info=True)
             time.sleep(60)  # Check every minute
     except KeyboardInterrupt:
         logger.info("Application interrupted by user")

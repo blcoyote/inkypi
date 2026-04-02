@@ -5,7 +5,7 @@ Provides a simple interface for fetching data from REST APIs.
 """
 
 import time
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import requests
 
@@ -13,7 +13,7 @@ import requests
 class APIClient:
     """HTTP API client with error handling and logging"""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         base_url: Optional[str] = None,
         timeout: int = 10,
@@ -71,7 +71,7 @@ class APIClient:
                 )
                 response.raise_for_status()
 
-                data = response.json()
+                data = cast(Dict[Any, Any], response.json())
                 self._log_info(f"GET successful: {url}")
                 return data
 
@@ -93,7 +93,7 @@ class APIClient:
                 self._log_error(f"Invalid JSON response from {url}")
                 return None  # not retryable
 
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 self._log_error(f"Unexpected error: {e}")
                 return None  # not retryable
 
@@ -128,7 +128,7 @@ class APIClient:
             )
             response.raise_for_status()
 
-            result = response.json()
+            result = cast(Dict[Any, Any], response.json())
             self._log_info(f"POST successful: {url}")
             return result
 
@@ -144,7 +144,7 @@ class APIClient:
             self._log_error(f"HTTP error {e.response.status_code}: {url}")
             return None
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             self._log_error(f"Unexpected error: {e}")
             return None
 

@@ -4,6 +4,8 @@ Unit Tests for Layouts
 Tests for display layout rendering.
 """
 
+# pylint: disable=protected-access  # tests access private helpers for unit verification
+
 from unittest.mock import Mock, patch
 
 import pytest
@@ -12,7 +14,7 @@ from rendering.layouts import Layouts
 
 
 @pytest.mark.unit
-class TestLayouts:
+class TestLayouts:  # pylint: disable=too-many-public-methods
     """Tests for Layouts rendering"""
 
     def test_init_creates_instance(self, mock_logger):
@@ -83,6 +85,7 @@ class TestLayouts:
     @patch("rendering.layouts.ImageFont.truetype")
     @patch("rendering.layouts.ImageDraw.Draw")
     @patch("rendering.layouts.Image.new")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def test_title_and_date_creates_image(
         self, mock_image_new, mock_draw, mock_truetype, mock_exists, mock_datetime, mock_logger
     ):
@@ -113,6 +116,7 @@ class TestLayouts:
     @patch("rendering.layouts.ImageFont.truetype")
     @patch("rendering.layouts.ImageDraw.Draw")
     @patch("rendering.layouts.Image.new")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def test_title_and_date_draws_black_rectangle(
         self, mock_image_new, mock_draw, mock_truetype, mock_exists, mock_datetime, mock_logger
     ):
@@ -143,6 +147,7 @@ class TestLayouts:
     @patch("rendering.layouts.ImageFont.truetype")
     @patch("rendering.layouts.ImageDraw.Draw")
     @patch("rendering.layouts.Image.new")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def test_title_and_date_draws_text(
         self, mock_image_new, mock_draw, mock_truetype, mock_exists, mock_datetime, mock_logger
     ):
@@ -170,6 +175,7 @@ class TestLayouts:
     @patch("rendering.layouts.ImageFont.truetype")
     @patch("rendering.layouts.ImageDraw.Draw")
     @patch("rendering.layouts.Image.new")
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def test_title_and_date_long_title_uses_smaller_font(
         self, mock_image_new, mock_draw, mock_truetype, mock_exists, mock_datetime, mock_logger
     ):

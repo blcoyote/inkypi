@@ -4,12 +4,13 @@ Layout Templates
 Pre-defined layout compositions for common display patterns.
 """
 
-from PIL import Image, ImageDraw, ImageFont
-from datetime import datetime
 import os
+from datetime import datetime
+
+from PIL import Image, ImageDraw, ImageFont
 
 
-class Layouts:
+class Layouts:  # pylint: disable=too-few-public-methods
     """Pre-defined layout templates for InkyPHAT display"""
 
     def __init__(self, width, height, logger=None):
@@ -25,7 +26,7 @@ class Layouts:
         self.height = height
         self.logger = logger
 
-    def _get_font(self, size):
+    def _get_font(self, size):  # pylint: disable=broad-exception-caught
         """Get font with fallback"""
         font_paths = [
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -41,7 +42,7 @@ class Layouts:
                     font = ImageFont.truetype(path, size)
                     self._log_info(f"Loaded font: {path} at size {size}")
                     return font
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-exception-caught
                     self._log_info(f"Failed to load {path}: {e}")
                     continue
 
@@ -61,7 +62,7 @@ class Layouts:
 
         return (x, y)
 
-    def _split_text(self, text, max_length=15):
+    def _split_text(self, text, max_length=15):  # pylint: disable=too-many-branches
         """
         Split text into multiple lines if it exceeds max_length
 
@@ -116,7 +117,7 @@ class Layouts:
 
         return lines
 
-    def title_and_date(self, title, date):
+    def title_and_date(self, title, date):  # pylint: disable=too-many-locals
         """
         Create a two-section layout with title on top and date on bottom
         Top section: white background with black text
