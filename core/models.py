@@ -5,7 +5,7 @@ Data classes for API responses and domain objects.
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 
